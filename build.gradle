@@ -1,0 +1,23 @@
+apply plugin: 'scala'
+apply plugin: 'idea'
+
+group 'ru.ispras'
+version '0.1'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile 'org.scala-lang:scala-library:2.11.7'
+    //for machine learning
+    compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '1.6.2'
+    compile group: 'org.apache.spark', name: 'spark-mllib_2.11', version: '1.6.2'
+    //for ranking by windows
+    compile 'org.apache.spark:spark-hive_2.11:1.6.2'
+    //log utils
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.4'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.4'
+}
+
