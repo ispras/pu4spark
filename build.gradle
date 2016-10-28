@@ -6,15 +6,13 @@ apply plugin: 'scala'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
-group 'ru.ispras'
-version '0.1'
-
 repositories {
     mavenCentral()
     jcenter()
 }
 
-group = "ru.ispras"   // Maven Group ID for the artifact
+def siteUrl = 'https://github.com/ispras/pu4spark'      // Homepage URL of the library
+def gitUrl = 'https://github.com/ispras/pu4spark.git'   // Git repository URL
 
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -22,8 +20,37 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar, dependsOn: scaladoc) {
+    classifier = 'javadoc'
+    from scaladoc.destinationDir
+}
+
+
 artifacts {
-    archives sourcesJar
+    archives sourcesJar, javadocJar
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "astrakhantsev"
+            name "Nikita Astrakhantsev"
+            email "astrakhantsev@ispras.ru"
+        }
+    }
+    scm {
+        connection gitUrl
+        developerConnection gitUrl
+        url siteUrl
+
+    }
 }
 
 publishing {
@@ -31,10 +58,19 @@ publishing {
         MyPublication(MavenPublication) {
             from components.java
             artifact sourcesJar
+            artifact javadocJar
 
-            groupId group
+            groupId 'ru.ispras'
             artifactId 'pu4spark'
             version '0.1'
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'A library for Positive-Unlabeled Learning for Apache Spark MLlib (ml package)')
+                root.appendNode('name', 'Positive Unlabeled Learning for Apache Spark MLlib')
+                root.appendNode('url', siteUrl)
+                root.children().last() + pomConfig
+            }
         }
     }
 }
@@ -57,6 +93,12 @@ bintray {
             gpg {
                 sign = true //Determines whether to GPG sign the files. The default is false
             }
+            //Optional configuration for Maven Central sync of the version
+//            mavenCentralSync {
+//                sync = true //[Default: true] Determines whether to sync the version to Maven Central.
+//                user = ossUser //OSS user token: mandatory
+//                password = ossPassword //OSS user password: mandatory
+//            }
         }
     }
 }

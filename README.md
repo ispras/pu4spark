@@ -28,7 +28,8 @@ and `mllib.linalg.Vector` by `ml.linalg.Vector`)
 
 ## Linking
 
-Add `jcenter` to repositories, then add the following to dependencies:
+The library is published into Maven central and JCenter.
+Add the following lines depending on your build system.
 
 ### Gradle
 
@@ -43,8 +44,13 @@ compile 'ru.ispras:pu4spark:0.1'
     <groupId>ru.ispras</groupId>
     <artifactId>pu4spark</artifactId>
     <version>0.1</version>
-    <type>pom</type>
 </dependency>
+```
+
+### SBT
+
+```
+libraryDependencies += "ru.ispras" % "pu4spark" % "0.1"
 ```
 
 ## Building from Sources
