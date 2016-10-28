@@ -26,15 +26,34 @@ Spark 1.5+
 but should work if replace `SparkContext` by `SparkSession`
 and `mllib.linalg.Vector` by `ml.linalg.Vector`)
 
-## Installation
+## Linking
+
+Add `jcenter` to repositories, then add the following to dependencies:
+
+### Gradle
+
+```gradle
+compile 'ru.ispras:pu4spark:0.1'
+```
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>ru.ispras</groupId>
+    <artifactId>pu4spark</artifactId>
+    <version>0.1</version>
+    <type>pom</type>
+</dependency>
+```
+
+## Building from Sources
 
 Build library with gradle:
 
 ```shell
 ./gradlew jar
 ```
-
-then add generated jar to your project.
 
 ## Usage example
 

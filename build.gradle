@@ -1,5 +1,10 @@
+plugins {
+    id "com.jfrog.bintray" version "1.7.1"
+}
+
 apply plugin: 'scala'
 apply plugin: 'idea'
+apply plugin: 'maven-publish'
 
 group 'ru.ispras'
 version '0.1'
@@ -7,6 +12,53 @@ version '0.1'
 repositories {
     mavenCentral()
     jcenter()
+}
+
+group = "ru.ispras"   // Maven Group ID for the artifact
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+
+            groupId group
+            artifactId 'pu4spark'
+            version '0.1'
+        }
+    }
+}
+
+
+bintray {
+    user = bintrayUser
+    key = bintrayApiKey
+    publications = ['MyPublication']
+    publish = true //If version should be auto published after an upload
+    override = true
+    pkg {
+        repo = 'maven'
+        name = 'pu4spark'
+        userOrg = 'ispras'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/ispras/pu4spark.git'
+        version {
+            name = '0.1'
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+            }
+        }
+    }
 }
 
 dependencies {
@@ -20,4 +72,3 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.4'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.4'
 }
-
