@@ -5,14 +5,21 @@ plugins {
 apply plugin: 'scala'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
+apply plugin: 'java-library'
 
 repositories {
     mavenCentral()
     jcenter()
 }
 
-def siteUrl = 'https://github.com/ispras/pu4spark'      // Homepage URL of the library
-def gitUrl = 'https://github.com/ispras/pu4spark.git'   // Git repository URL
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.4.1' //version required
+}
+
+def artifactName = 'pu4spark'
+def siteUrl = 'https://github.com/ispras/' + artifactName      // Homepage URL of the library
+def gitUrl = 'https://github.com/ispras/' + artifactName + '.git'   // Git repository URL
+def artifactVersion = '0.2'
 
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -61,8 +68,8 @@ publishing {
             artifact javadocJar
 
             groupId 'ru.ispras'
-            artifactId 'pu4spark'
-            version '0.1'
+            artifactId artifactName
+            version artifactVersion
 
             pom.withXml {
                 def root = asNode()
@@ -84,12 +91,12 @@ bintray {
     override = true
     pkg {
         repo = 'maven'
-        name = 'pu4spark'
+        name = artifactName
         userOrg = 'ispras'
         licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/ispras/pu4spark.git'
+        vcsUrl = gitUrl
         version {
-            name = '0.1'
+            name = artifactVersion
             gpg {
                 sign = true //Determines whether to GPG sign the files. The default is false
             }
