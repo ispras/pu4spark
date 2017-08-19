@@ -34,7 +34,7 @@ Add the following lines depending on your build system.
 ### Gradle
 
 ```gradle
-compile 'ru.ispras:pu4spark:0.1'
+compile 'ru.ispras:pu4spark:0.2'
 ```
 
 ### Maven
@@ -43,14 +43,14 @@ compile 'ru.ispras:pu4spark:0.1'
 <dependency>
     <groupId>ru.ispras</groupId>
     <artifactId>pu4spark</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 </dependency>
 ```
 
 ### SBT
 
 ```
-libraryDependencies += "ru.ispras" % "pu4spark" % "0.1"
+libraryDependencies += "ru.ispras" % "pu4spark" % "0.2"
 ```
 
 ## Building from Sources
