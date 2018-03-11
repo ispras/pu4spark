@@ -34,7 +34,7 @@ Add the following lines depending on your build system.
 ### Gradle
 
 ```gradle
-compile 'ru.ispras:pu4spark:0.2'
+compile 'ru.ispras:pu4spark:0.3'
 ```
 
 ### Maven
@@ -43,14 +43,14 @@ compile 'ru.ispras:pu4spark:0.2'
 <dependency>
     <groupId>ru.ispras</groupId>
     <artifactId>pu4spark</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
 </dependency>
 ```
 
 ### SBT
 
 ```
-libraryDependencies += "ru.ispras" % "pu4spark" % "0.2"
+libraryDependencies += "ru.ispras" % "pu4spark" % "0.3"
 ```
 
 ## Building from Sources
@@ -85,5 +85,5 @@ val assembler = new VectorAssembler()
   .setInputCols(df.columns.filter(c => c != rowName)) //keep here only feature columns
   .setOutputCol(featuresName)
 val pipeline = new Pipeline().setStages(Array(assembler))
-val preparedDf = pipeline.fit(df).transform(dfForML)
+val preparedDf = pipeline.fit(df).transform(df)
 ```

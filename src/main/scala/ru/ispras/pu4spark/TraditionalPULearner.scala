@@ -1,9 +1,7 @@
 package ru.ispras.pu4spark
 
 import org.apache.logging.log4j.LogManager
-import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.{LogisticRegressionModel, ProbabilisticClassificationModel, ProbabilisticClassifier}
-import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
@@ -37,10 +35,12 @@ class TraditionalPULearner[
 
     val prevLabel = "prevLabel"
     val curLabel = "curLabel"
-    var curDF = oneStepPUDF.withColumnRenamed(labelColumnName, prevLabel)
+
+    // replace all zeros with labels for undefined
+    var curDF = replaceZerosByUndefLabel(oneStepPUDF, labelColumnName, prevLabel, TraditionalPULearner.undefLabel)
 
     for (i <- 1 to maxIters) {
-      //replace weights by 0-1 column for further learning (induce lables for curLabDF)
+      //replace weights by binary column for further learning (induce labels for curLabDF)
       val curLabelColumn = confAdder.binarizeUDF(curDF(finalLabel), curDF(prevLabel))
 
       curDF = curDF.withColumn(curLabel, curLabelColumn).cache()
@@ -50,20 +50,15 @@ class TraditionalPULearner[
         .count()
 
       log.debug(s"newRelNegCount: $newRelNegCount")
-
       if (newRelNegCount == 0) {
         return curDF
       }
 
       //learn new classifier
-      val curLabDF = curDF.filter(curDF(curLabel) !== TraditionalPULearner.undefLabel) //keep positives and rel. negs
-      //      curLabDF.describe().show()
-      val newLabelIndexer = new StringIndexer()
-          .setInputCol(curLabel)
-          .setOutputCol(ProbabilisticClassifierConfig.labelName)
+      val curLabDF = curDF.filter(curDF(curLabel) !== TraditionalPULearner.undefLabel) //keep only positives and relnegs
 
-      val newPipeline = new Pipeline().setStages(Array(newLabelIndexer)) //, classifier))
-      val newPreparedDf = newPipeline.fit(curLabDF).transform(curLabDF)
+      val newPreparedDf = indexLabelColumn(curLabDF, curLabel, ProbabilisticClassifierConfig.labelName,
+        Seq(TraditionalPULearner.relNegLabel.toString, "1.0"))
 
       val model = classifier.fit(newPreparedDf)
 
@@ -82,22 +77,22 @@ class TraditionalPULearner[
 }
 
 private class RelNegConfidenceThresholdAdder(threshold: Double) extends Serializable {
-  def binarize(probPred: Double, prevLabel: Int): Int = if (prevLabel == 0) { //i.e. unlabeled
+  def binarize(probPred: Double, prevLabel: Int): Int = if (prevLabel == TraditionalPULearner.undefLabel) { // unlabeled
     if (probPred < threshold) {
       TraditionalPULearner.relNegLabel
     } else {
       TraditionalPULearner.undefLabel
     }
   } else {
-    prevLabel // keep as it was (1 or -1)
+    prevLabel // keep as it was (positive or reliable negatives, i.e. 1 or 0)
   }
 
   val binarizeUDF = udf(binarize(_: Double, _: Int))
 }
 
 object TraditionalPULearner {
-  val relNegLabel = -1
-  val undefLabel = 0
+  val relNegLabel = 0
+  val undefLabel = -1
 }
 
 case class TraditionalPULearnerConfig(relNegThreshold: Double = 0.5,
